@@ -7,7 +7,9 @@ int addProduct(Product *p){
     printf("제품명? ");;
     scanf("%s", p->name);
     printf("제품 설명? ");
-    scanf("%s", p->explain);
+    getchar();
+    fgets(p->explain, 20 , stdin);
+    p->explain[strlen(p->explain)-1]='\0';
     printf("제품 중량?");
     scanf("%s", p->weight);
     printf("판매 가격? ");
@@ -54,7 +56,9 @@ int loaddata(Product *p[]){
     #ifdef DEBUG
     printf("DEBUG\n");
     #endif
+    int count = 0;
     int i = 0;
+    int size;
     FILE *fp;
     fp = fopen("product.txt", "r");
     if(fp == NULL){
@@ -64,20 +68,23 @@ int loaddata(Product *p[]){
         for(; i < 100; i++){
         char pack[10];
         if(feof(fp))break;
+	count ++;
         p[i] = (Product *)malloc(sizeof(Product));
         fscanf(fp, "%s", p[i]->name);
-        fscanf(fp, "%s", p[i]->explain);
-        fscanf(fp, "%s", p[i]->weight);
+	fscanf(fp, "%d", &size);
+	int sizes = size+1;
+        fgets(p[i]->explain, sizes, fp);
+	fscanf(fp, "%s", p[i]->weight);
         fscanf(fp, "%d", &p[i]->price);
         fscanf(fp, "%s", pack);
         fscanf(fp, "%d", &p[i]->packway);
-        printf("%s /%s /%s/ %d/ %s\n", p[i]->name, p[i]->explain, p[i]->weight, p[i]->price, pack );
+        printf("%s %s %s %d %s\n", p[i]->name, p[i]->explain, p[i]->weight, p[i]->price, pack );
         
     }
     //int ret = 
     fclose(fp);
     printf("=>로딩완료!\n");
-    return i;
+    return count;
     }
 }
 
@@ -88,10 +95,11 @@ int saveData(Product *p[], int count){
     for(int i = 0; i < count; i++){
         if(p[i] == NULL)continue;
         else{
+	int length = strlen(p[i]->explain);
         if(p[i]->packway == 1)
-        fprintf(fp, "%s %s %s %d 새벽배송 %d\n", p[i]->name, p[i]->explain, p[i]->weight, p[i]->price, p[i]->packway);
+        fprintf(fp, "%s %d %s %s %d 새벽배송 %d\n", p[i]->name,length, p[i]->explain, p[i]->weight, p[i]->price, p[i]->packway);
     else
-        fprintf(fp, "%s %s %s %d 택배배송 %d\n", p[i]->name, p[i]->explain, p[i]->weight, p[i]->price, p[i]->packway);
+        fprintf(fp, "%s %d %s %s %d 택배배송 %d\n", p[i]->name,length, p[i]->explain, p[i]->weight, p[i]->price, p[i]->packway);
     }
     }
     fclose(fp);
